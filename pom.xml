@@ -4,18 +4,45 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>de.conciso</groupId>
-  <artifactId>keycloak-extensions</artifactId>
+  <groupId>de.conciso.keycloak-extensions</groupId>
+  <artifactId>parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>keycloak-extensions</name>
 
   <modules>
     <module>keycloak-extension-rest</module>
+    <module>user-management</module>
   </modules>
 
+
+  <scm>
+    <connection>scm:git:ssh://git@github.com:conciso/keycloak-extensions.git</connection>
+    <developerConnection>scm:git:https://github.com/conciso/keycloak-extensions.git
+    </developerConnection>
+    <url>https://github.com/keycloak/keycloak-extensions.git</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <url>https://github.com/conciso/keycloak-extensions/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub conciso Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/conciso/keycloak-extensions</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.release>17</maven.compiler.release>
+
     <version.keycloak>23.0.4</version.keycloak>
     <version.maven.plugins>3.2.3</version.maven.plugins>
 
@@ -40,39 +67,44 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- Keycloak Extension -->
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-parent</artifactId>
+        <version>${version.keycloak}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${version.keycloak}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-server-spi</artifactId>
+        <version>${version.keycloak}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-server-spi-private</artifactId>
+        <version>${version.keycloak}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-services</artifactId>
+        <version>${version.keycloak}</version>
+        <scope>provided</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
-
   <dependencies>
-    <!-- Keycloak Extension -->
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-core</artifactId>
-      <version>${version.keycloak}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-server-spi</artifactId>
-      <version>${version.keycloak}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-server-spi-private</artifactId>
-      <version>${version.keycloak}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-services</artifactId>
-      <version>${version.keycloak}</version>
-      <scope>provided</scope>
-    </dependency>
-
-
-
     <!-- Test Dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
