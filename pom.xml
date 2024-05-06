@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.conciso</groupId>
+  <artifactId>keycloak-extensions</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>keycloak-extensions</name>
+
+  <modules>
+    <module>keycloak-extension-rest</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <version.keycloak>23.0.4</version.keycloak>
+    <version.maven.plugins>3.2.3</version.maven.plugins>
+
+    <version.mockito>5.11.0</version.mockito>
+    <version.assertj>3.19.0</version.assertj>
+    <version.testcontainers>1.19.7</version.testcontainers>
+    <version.testcontainers.keycloak>3.3.0</version.testcontainers.keycloak>
+    <version.restassured>5.4.0</version.restassured>
+    <version.junit>5.10.2</version.junit>
+    <version.log4j>2.23.1</version.log4j>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- Tests -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.junit}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+
+  <dependencies>
+    <!-- Keycloak Extension -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
+      <version>${version.keycloak}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi</artifactId>
+      <version>${version.keycloak}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi-private</artifactId>
+      <version>${version.keycloak}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-services</artifactId>
+      <version>${version.keycloak}</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${version.mockito}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${version.testcontainers}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.assertj}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.dasniko</groupId>
+      <artifactId>testcontainers-keycloak</artifactId>
+      <version>${version.testcontainers.keycloak}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${version.restassured}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <version>${version.log4j}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
