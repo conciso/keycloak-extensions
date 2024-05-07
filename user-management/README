@@ -1,0 +1,28 @@
+# User Last Login Event Listener
+
+This extension for Keycloak enhances user management by tracking and recording the last successful login times of users and service accounts. It automatically updates a custom attribute with the timestamp of each successful login event.
+
+## Features
+
+- **User Login Tracking**: Updates the last successful login time for users upon successful authentication.
+- **Service Account Login Tracking**: Records the last login time for service accounts when they authenticate via client credentials.
+
+## Configuration
+
+Before configuring the event listener, ensure the declarative user profile feature is activated (which is the default from Keycloak version 24.x onwards). Ensure that the `lastSuccessfulLoginAt` attribute is only visible to administrators for enhanced privacy and security.
+Also ensure that attributes are [marked read-only on server level](https://www.keycloak.org/docs/24.0.3/server_admin/#read_only_user_attributes).
+
+After deploying the JAR, you need to configure Keycloak to use this event listener:
+
+1. Log in to the Keycloak Admin Console.
+2. Navigate to the realm where you want to enable the event listener.
+3. Go to `Events` -> `Config`.
+4. Under `Events Settings`, find the `Event Listeners` config.
+5. Add `last-login` to the list of active event listeners.
+6. Save the changes.
+
+This will activate the User Last Login Event Listener for the specified realm.
+
+## Usage
+
+Once installed and configured, the extension works automatically. It updates the `lastSuccessfulLoginAt` attribute in the user's profile upon each successful login.
