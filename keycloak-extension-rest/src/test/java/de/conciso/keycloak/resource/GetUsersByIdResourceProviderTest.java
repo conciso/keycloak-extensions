@@ -1,28 +1,38 @@
 package de.conciso.keycloak.resource;
 
 import de.conciso.keycloak.resource.admin.GetUsersByIdResource;
+import jakarta.ws.rs.core.Response;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.common.Profile;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserProvider;
+import org.keycloak.models.light.LightweightUserAdapter;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.services.ForbiddenException;
+import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
+import org.keycloak.services.resources.admin.permissions.UserPermissionEvaluator;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
-import java.util.List;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class GetUsersByIdResourceProviderTest {
@@ -47,6 +57,23 @@ class GetUsersByIdResourceProviderTest {
 
   @Mock
   UserModel userModel;
+
+  @Mock
+  AdminPermissionEvaluator adminPermissionEvaluator;
+
+  @Spy
+  UserPermissionEvaluator userPermissionEvaluator;
+
+  @Mock
+  LightweightUserAdapter lightweightUserAdapter;
+
+  @BeforeEach
+  void setUp() {
+    // set this for LightWeightUserAdapter to function
+    Profile.defaults();
+    given(adminPermissionEvaluator.users()).willReturn(userPermissionEvaluator);
+    doNothing().when(userPermissionEvaluator).requireQuery();
+  }
 
   void setKeycloakContextMocks() {
     given(session.users()).willReturn(userProvider);
@@ -127,6 +154,7 @@ class GetUsersByIdResourceProviderTest {
   @Nested
   class GivenTwoIdsInListButOneDoesntExist {
     private final static UUID NOT_KNOWN_ID = new UUID(0, 1);
+
     @BeforeEach
     void setUp() {
       setKeycloakContextMocks();
@@ -193,6 +221,29 @@ class GetUsersByIdResourceProviderTest {
               .contains("could not be Found");
 
         }
+      }
+    }
+  }
+
+  @Nested
+  class GivenOneIdInListThatTheRequestingUserHasNoPermissionFor {
+
+    List<UUID> listWithOneID = List.of(SOME_ID);
+
+    @BeforeEach
+    void setUp() {
+      setKeycloakContextMocks();
+      given(userProvider.getUserById(realmModel, SOME_ID.toString())).willReturn(userModel);
+      doThrow(new ForbiddenException()).when(userPermissionEvaluator).requireView(userModel);
+    }
+
+    @Nested
+    class WhenGetAllUsersById {
+      @Test
+      void thenReturnsForbidden() {
+        assertThatThrownBy(() ->
+            cut.getAllUsersByListOfIds(listWithOneID, true))
+            .isInstanceOf(ForbiddenException.class);
       }
     }
   }
