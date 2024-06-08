@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.not;
 @Testcontainers
 class RestITest {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestITest.class);
-  private static final String LATEST = "23.0.4";
+  private static final String LATEST = "24.0.5";
   private static final String REALM_NAME = "conciso";
   private static final String URL_PATH = "users-by-id";
   private static final String ADMIN_USER = "admin";
