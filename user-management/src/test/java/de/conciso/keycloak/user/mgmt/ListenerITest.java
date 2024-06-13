@@ -52,7 +52,7 @@ public class ListenerITest {
             String.format("Expected time <%s> and actual time <%s> differ by more than 1 second.", expectedTimeValue, actualTimeValue));
     }
 
-    public String loginWithUserAccount(String url) {
+    private String loginWithUserAccount(String url) {
         try {
             Keycloak keycloakUserClient = KeycloakBuilder.builder()
                 .serverUrl(url)
@@ -67,7 +67,7 @@ public class ListenerITest {
         }
     }
 
-    public Keycloak loginWithAdminAccount(String url) {
+    private Keycloak loginWithAdminAccount(String url) {
         try {
             Keycloak adminClient = KeycloakBuilder.builder()
                 .serverUrl(url)
@@ -83,14 +83,14 @@ public class ListenerITest {
         }
     }
 
-    public Instant extractAttributeValue(Keycloak keycloakAdminClient) {
+    private Instant extractAttributeValue(Keycloak keycloakAdminClient) {
         UserRepresentation testUser = keycloakAdminClient.realm(REALM_NAME).users().search("test").get(0);
         assertNotNull(testUser.getAttributes());
         String attributeValue = testUser.getAttributes().get("lastSuccessfulLoginAt").get(0);
         return Instant.parse(attributeValue);
     }
 
-    public Instant extractLastSuccessfullyLoginTimeFromAccessToken(String accessToken) {
+    private Instant extractLastSuccessfullyLoginTimeFromAccessToken(String accessToken) {
         try {
             String[] jwtParts = accessToken.split("\\.");
             String payload = new String(Base64.getUrlDecoder().decode(jwtParts[1]));
@@ -101,7 +101,7 @@ public class ListenerITest {
         }
     }
 
-    public long calculateDifferenceInSecondsBetweenInstants(Instant actualTime, Instant expectedTime) {
+    private long calculateDifferenceInSecondsBetweenInstants(Instant actualTime, Instant expectedTime) {
         return Math.abs(ChronoUnit.SECONDS.between(actualTime, expectedTime));
     }
 }
