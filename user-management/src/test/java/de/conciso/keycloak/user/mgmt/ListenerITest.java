@@ -29,6 +29,8 @@ public class ListenerITest {
     private static final String REALM_NAME = "conciso";
     private static final String ADMIN_USER = "admin";
     private static final String ADMIN_PASS = "admin";
+    private static final String TEST_USER = "test";
+    private static final String TEST_USER_PASSWORD = "test";
 
     @Container
     private static final KeycloakContainer keycloak =
@@ -43,44 +45,28 @@ public class ListenerITest {
     @Test
     public void assertLastSuccessfulLoginAtAttributeMatchesExpected() {
         String authUrl = keycloak.getAuthServerUrl();
-        String userAccessToken = loginWithUserAccount(authUrl);
-        Instant expectedTimeValue = extractLastSuccessfullyLoginTimeFromAccessToken(userAccessToken);
-        Keycloak keycloakAdminClient = loginWithAdminAccount(authUrl);
-        Instant actualTimeValue = extractAttributeValue(keycloakAdminClient);
-        long diff = calculateDifferenceInSecondsBetweenInstants(actualTimeValue, expectedTimeValue);
-        assertTrue(diff <= 1,
-            String.format("Expected time <%s> and actual time <%s> differ by more than 1 second.", expectedTimeValue, actualTimeValue));
-    }
-
-    private String loginWithUserAccount(String url) {
         try {
-            Keycloak keycloakUserClient = KeycloakBuilder.builder()
-                .serverUrl(url)
-                .realm("conciso")
-                .username("test")
-                .password("test")
-                .clientId("admin-cli")
-                .build();
-            return keycloakUserClient.tokenManager().getAccessToken().getToken();
+            Keycloak userClient = login(authUrl, REALM_NAME, TEST_USER, TEST_USER_PASSWORD);
+            String userAccessToken = userClient.tokenManager().getAccessToken().getToken();
+            Instant expectedTimeValue = extractLastSuccessfullyLoginTimeFromAccessToken(userAccessToken);
+            Keycloak adminClient = login(authUrl, "master", ADMIN_USER, ADMIN_PASS);
+            Instant actualTimeValue = extractAttributeValue(adminClient);
+            long diff = calculateDifferenceInSecondsBetweenInstants(actualTimeValue, expectedTimeValue);
+            assertTrue(diff <= 1,
+                String.format("Expected time <%s> and actual time <%s> differ by more than 1 second.", expectedTimeValue, actualTimeValue));
         } catch (Exception e) {
-            throw new UnauthorizedException("User Authentication Failed.");
+            throw new RuntimeException(e.getMessage());
         }
     }
 
-    private Keycloak loginWithAdminAccount(String url) {
-        try {
-            Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(url)
-                .realm("master")
-                .username(ADMIN_USER)
-                .password(ADMIN_PASS)
-                .clientId("admin-cli")
-                .build();
-            String accessToken = adminClient.tokenManager().getAccessToken().getToken();
-            return adminClient;
-        } catch (Exception e) {
-            throw new UnauthorizedException("Admin Authentication Failed.");
-        }
+    private Keycloak login(String url, String realm, String username, String password) {
+        return KeycloakBuilder.builder()
+            .serverUrl(url)
+            .realm(realm)
+            .username(username)
+            .password(password)
+            .clientId("admin-cli")
+            .build();
     }
 
     private Instant extractAttributeValue(Keycloak keycloakAdminClient) {
