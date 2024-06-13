@@ -41,7 +41,6 @@ public class ListenerITest {
             System.getProperty("version.keycloak", KEYCLOAK_VERSION))
             .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
             .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
-            .withEnv("KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL", "info")
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withProviderClassesFrom("target/classes")
             .withRealmImportFile("conciso-realm.json");
