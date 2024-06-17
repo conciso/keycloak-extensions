@@ -40,7 +40,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -66,9 +65,17 @@
               <keycloak.version>${version.keycloak}</keycloak.version>
             </systemPropertyVariables>
           </configuration>
+            <executions>
+                <execution>
+                    <id>integration-test</id>
+                    <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                    </goals>
+                </execution>
+            </executions>
         </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 
 </project>
