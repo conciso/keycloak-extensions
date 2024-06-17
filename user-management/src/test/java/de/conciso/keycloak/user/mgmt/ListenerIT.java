@@ -1,6 +1,5 @@
 package de.conciso.keycloak.user.mgmt;
 
-import com.github.dockerjava.api.exception.UnauthorizedException;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
@@ -18,14 +17,13 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
-public class ListenerITest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ListenerITest.class);
-    private static final String KEYCLOAK_VERSION = "23.0.4";
+public class ListenerIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListenerIT.class);
+    private static final String LATEST = "23.0.4";
     private static final String REALM_NAME = "conciso";
     private static final String ADMIN_USER = "admin";
     private static final String ADMIN_PASS = "admin";
@@ -35,7 +33,7 @@ public class ListenerITest {
     @Container
     private static final KeycloakContainer keycloak =
         new KeycloakContainer("quay.io/keycloak/keycloak:" +
-            System.getProperty("version.keycloak", KEYCLOAK_VERSION))
+            System.getProperty("keycloak.version", LATEST))
             .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
             .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))

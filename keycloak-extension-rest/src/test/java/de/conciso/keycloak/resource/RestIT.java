@@ -4,7 +4,6 @@ import dasniko.testcontainers.keycloak.KeycloakContainer;
 import de.conciso.utils.TokenUtil;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.matcher.ResponseAwareMatcher;
 import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,8 +30,8 @@ import static org.hamcrest.Matchers.not;
 
 
 @Testcontainers
-class RestITest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RestITest.class);
+class RestIT {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RestIT.class);
   private static final String LATEST = "23.0.4";
   private static final String REALM_NAME = "conciso";
   private static final String URL_PATH = "users-by-id";
@@ -44,7 +43,7 @@ class RestITest {
   @Container
   private static final KeycloakContainer keycloak =
       new KeycloakContainer("quay.io/keycloak/keycloak:" +
-          System.getProperty("version.keycloak", LATEST))
+          System.getProperty("keycloak.version", LATEST))
           .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
           .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
           .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
