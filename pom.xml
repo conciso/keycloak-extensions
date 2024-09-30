@@ -11,6 +11,7 @@
   <name>keycloak-extensions</name>
 
   <modules>
+    <module>authenticator-required-action</module>
     <module>keycloak-extension-rest</module>
     <module>user-management</module>
   </modules>

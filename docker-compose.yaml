@@ -18,6 +18,8 @@ services:
     volumes:
       - "./keycloak-extension-rest/target/keycloak-extension-rest-1.0-SNAPSHOT.jar:/opt/keycloak/providers/keycloak-extension-rest.jar"
       - "./keycloak-extension-rest/src/test/resources/conciso-realm.json:/opt/keycloak/data/import/conciso-realm.json"
+      - "./authenticator-required-action/target/authenticator-required-action-1.0-SNAPSHOT.jar:/opt/keycloak/providers/authenticator-required-action.jar"
+      - "./authenticator-required-action/src/test/resources/required-action-realm.json:/opt/keycloak/data/import/required-action-realm.json"
     depends_on:
         postgres:
           condition: service_healthy
