@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.not;
 @Testcontainers
 class RestIT {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestIT.class);
-  private static final String LATEST = "23.0.4";
+  private static final String KEYCLOAK_VERSION = System.getProperty("keycloak.version", "latest");
   private static final String REALM_NAME = "conciso";
   private static final String URL_PATH = "users-by-id";
   private static final String ADMIN_USER = "admin";
@@ -42,8 +42,7 @@ class RestIT {
 
   @Container
   private static final KeycloakContainer keycloak =
-      new KeycloakContainer("quay.io/keycloak/keycloak:" +
-          System.getProperty("keycloak.version", LATEST))
+      new KeycloakContainer("quay.io/keycloak/keycloak:" + KEYCLOAK_VERSION)
           .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
           .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
           .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
