@@ -11,7 +11,7 @@
   <artifactId>keycloak-extension-rest</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>keycloak-extension-rest</name>
+  <name>Keycloak: Rest Extensions</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
