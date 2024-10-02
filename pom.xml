@@ -45,15 +45,15 @@
     <maven.compiler.release>17</maven.compiler.release>
 
     <version.keycloak>23.0.4</version.keycloak>
-    <version.maven.plugins>3.2.3</version.maven.plugins>
+    <version.maven.plugins>3.5.0</version.maven.plugins>
 
-    <version.mockito>5.11.0</version.mockito>
-    <version.assertj>3.19.0</version.assertj>
-    <version.testcontainers>1.19.7</version.testcontainers>
+    <version.mockito>5.14.1</version.mockito>
+    <version.assertj>3.26.3</version.assertj>
+    <version.testcontainers>1.20.2</version.testcontainers>
     <version.testcontainers.keycloak>3.3.0</version.testcontainers.keycloak>
-    <version.restassured>5.4.0</version.restassured>
-    <version.junit>5.10.2</version.junit>
-    <version.log4j>2.23.1</version.log4j>
+    <version.restassured>5.5.0</version.restassured>
+    <version.junit>5.11.1</version.junit>
+    <version.log4j>2.24.1</version.log4j>
     <version.playwright>1.47.0</version.playwright>
   </properties>
 
