@@ -17,4 +17,4 @@ jobs:
           java-version: '17'
           cache: maven
       - name: Build project with Maven
-        run: mvn -B clean package
+        run: mvn -B clean verify
