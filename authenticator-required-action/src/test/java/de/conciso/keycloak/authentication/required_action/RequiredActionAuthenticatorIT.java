@@ -6,6 +6,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,12 +34,20 @@ class RequiredActionAuthenticatorIT {
 
   @Container
   private static final KeycloakContainer keycloak =
-    new KeycloakContainer("quay.io/keycloak/keycloak:" + KEYCLOAK_VERSION)
-      .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
-      .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
-      .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
-      .withProviderClassesFrom("target/classes")
-      .withRealmImportFile("required-action-realm.json");
+      new KeycloakContainer("quay.io/keycloak/keycloak:" + KEYCLOAK_VERSION)
+          .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
+          .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
+          .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
+          .withProviderClassesFrom("target/classes")
+          .withRealmImportFile("required-action-realm.json");
+
+  private static Stream<Arguments> provideUserLogins() {
+    return Stream.of(
+        Arguments.of("dieterbohlen", "dietersPassword", "TERMS_AND_CONDITIONS"),
+        Arguments.of("mannimammut", "mannimammutsPassword", "UPDATE_PASSWORD"),
+        Arguments.of("peterpommes", "peterpommesPassword", "VERIFY_PROFILE")
+    );
+  }
 
   @ParameterizedTest
   @MethodSource("provideUserLogins")
@@ -54,29 +63,16 @@ class RequiredActionAuthenticatorIT {
     var keycloakAdminClient = keycloak.getKeycloakAdminClient().realm(REALM_NAME);
     keycloakAdminClient.flows().updateAuthenticatorConfig(AUTHENTICATOR_CONFIG_ID, authenticatorConfig);
     assertThat(keycloakAdminClient.users().searchByUsername(userName, true).get(0).getRequiredActions())
-      .isEmpty();
+        .isEmpty();
 
-    executeBrowserFlow(userName, password);
-
-    assertThat(keycloakAdminClient.users().searchByUsername(userName, true).get(0).getRequiredActions())
-      .containsExactly(requiredAction);
-
+    executeBrowserFlow(userName, password, requiredAction);
   }
 
-
-  private static Stream<Arguments> provideUserLogins() {
-    return Stream.of(
-      Arguments.of("dieterbohlen", "dietersPassword", "TERMS_AND_CONDITIONS")
-//      Arguments.of("mannimammut", "mannimammutsPassword", "UPDATE_PASSWORD"),
-//      Arguments.of("peterpommes", "peterpommesPassword", "VERIFY_EMAIL")
-    );
-  }
-
-  void executeBrowserFlow(String userName, String password) {
+  void executeBrowserFlow(String userName, String password, String requiredAction) {
     try (Playwright playwright = Playwright.create()) {
       BrowserType chromium = playwright.chromium();
       // comment me in if you want to run in headless mode !
-      // Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
+      //Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
       Browser browser = chromium.launch();
       Page page = browser.newPage();
       page.navigate(String.format("http://localhost:%s/realms/required-action/account/", keycloak.getHttpPort()));
@@ -90,6 +86,23 @@ class RequiredActionAuthenticatorIT {
 
       page.getByLabel("Password").first().fill(password);
       page.getByLabel("Password").first().press("Enter");
+
+      // split here, for the specific required action
+      switch (requiredAction) {
+        case "TERMS_AND_CONDITIONS":
+          page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Accept")).click();
+          break;
+        case "UPDATE_PASSWORD":
+          page.getByLabel("New Password").fill("Test123!");
+          page.getByLabel("Confirm Password").fill("Test123!");
+          page.getByLabel("Confirm Password").press("Enter");
+          break;
+        case "VERIFY_PROFILE":
+          assertThat(keycloak.getKeycloakAdminClient().realm(REALM_NAME).users().searchByUsername(userName, true).get(0).getRequiredActions()).containsExactly(requiredAction);
+          break;
+        default:
+          Assertions.fail();
+      }
 
       page.waitForURL(String.format("http://localhost:%s/realms/required-action/account/#/security/signingin", keycloak.getHttpPort()));
 

@@ -1728,7 +1728,7 @@
     "alias" : "TERMS_AND_CONDITIONS",
     "name" : "Terms and Conditions",
     "providerId" : "TERMS_AND_CONDITIONS",
-    "enabled" : false,
+    "enabled" : true,
     "defaultAction" : false,
     "priority" : 20,
     "config" : { }
