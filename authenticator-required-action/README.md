@@ -9,6 +9,8 @@ flowchart LR
 ```
 
 The First Broker login of Idp CompanyA is configured to set the 'TERMS_AND_CONDITIONS' for all users from CompanyA. Users from CompanyB dont have to accept the terms, so they dont get that action.
+
+## How to use
 ![required-action-flow.png](../docs/pics/required-action-flow.png)
 
 ![required-action-authenticator-config.png](../docs/pics/required-action-authenticator-config.png)

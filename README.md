@@ -4,7 +4,7 @@ This Repository contains free to use Extensions for the OpenSource Project [Keyc
 
 This repo contains the following extensions:
 
-## Authenticator-Required Action
+## Authenticator-Required-Action
 
 You can add this Authenticator to your flow, so a User gets the defined Required-Action set on signing in.
 [README.md - Authenticator-Required Action](./authenticator-required-action/README.md)
