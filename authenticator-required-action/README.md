@@ -1,4 +1,4 @@
-# Authenticator-Required Action
+# Authenticator-Required-Action
 
 ```mermaid
 flowchart LR
