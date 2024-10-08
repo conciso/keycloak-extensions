@@ -104,7 +104,7 @@ class RequiredActionAuthenticatorIT {
           Assertions.fail();
       }
 
-      page.waitForURL(String.format("http://localhost:%s/realms/required-action/account/#/security/signingin", keycloak.getHttpPort()));
+      page.waitForURL(String.format("%s/realms/required-action/account/#/security/signingin", keycloak.getAuthServerUrl()));
 
       assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Signing in"))).isVisible();
 
