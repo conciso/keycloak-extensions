@@ -145,6 +145,8 @@ class RequiredActionAuthenticatorIT {
       page.getByLabel("Password").first().fill("dietersPassword");
       page.getByLabel("Password").first().press("Enter");
 
+      // TODO Check on Error Page here and check on Logs of KeycloakContainer
+
     }
   }
 }
