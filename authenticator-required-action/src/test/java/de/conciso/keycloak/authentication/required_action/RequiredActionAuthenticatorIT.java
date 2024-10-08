@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @Testcontainers
 class RequiredActionAuthenticatorIT {
@@ -146,7 +147,7 @@ class RequiredActionAuthenticatorIT {
       page.getByLabel("Password").first().press("Enter");
 
       // TODO Check on Error Page here and check on Logs of KeycloakContainer
-
+      fail();
     }
   }
 }
