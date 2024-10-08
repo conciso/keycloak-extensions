@@ -7,6 +7,7 @@ import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -62,6 +63,7 @@ class RequiredActionAuthenticatorIT {
 
     var keycloakAdminClient = keycloak.getKeycloakAdminClient().realm(REALM_NAME);
     keycloakAdminClient.flows().updateAuthenticatorConfig(AUTHENTICATOR_CONFIG_ID, authenticatorConfig);
+
     assertThat(keycloakAdminClient.users().searchByUsername(userName, true).get(0).getRequiredActions())
         .isEmpty();
 
@@ -75,7 +77,7 @@ class RequiredActionAuthenticatorIT {
       //Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
       Browser browser = chromium.launch();
       Page page = browser.newPage();
-      page.navigate(String.format("http://localhost:%s/realms/required-action/account/", keycloak.getHttpPort()));
+      page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
 
       page.getByText("Signing in").click();
       page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
@@ -109,6 +111,40 @@ class RequiredActionAuthenticatorIT {
       assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Signing in"))).isVisible();
 
       browser.close();
+    }
+  }
+
+  @Test
+  void testThatFlowIsNotSuccessFulWhenAuthenticatorConfigIsEmpty() {
+    // Setting the AuthenticatorConfig to empty
+    var authenticatorConfig = new AuthenticatorConfigRepresentation();
+    authenticatorConfig.setId(AUTHENTICATOR_CONFIG_ID);
+    authenticatorConfig.setAlias("RequiredAction");
+    var configMap = new HashMap<String, String>();
+    configMap.put("REQUIRED_ACTION", "");
+    authenticatorConfig.setConfig(configMap);
+
+    var keycloakAdminClient = keycloak.getKeycloakAdminClient().realm(REALM_NAME);
+    keycloakAdminClient.flows().updateAuthenticatorConfig(AUTHENTICATOR_CONFIG_ID, authenticatorConfig);
+
+    try (Playwright playwright = Playwright.create()) {
+      BrowserType chromium = playwright.chromium();
+      // comment me in if you want to run in headless mode !
+      Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
+//      Browser browser = chromium.launch();
+      Page page = browser.newPage();
+      page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
+
+      page.getByText("Signing in").click();
+      page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
+
+      // Login Page
+      page.getByLabel("Username or email").click();
+      page.getByLabel("Username or email").fill("dieterbohlen");
+
+      page.getByLabel("Password").first().fill("dietersPassword");
+      page.getByLabel("Password").first().press("Enter");
+
     }
   }
 }
