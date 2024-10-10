@@ -6,6 +6,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,11 +15,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.keycloak.representations.idm.AuthenticatorConfigRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.LoggingEvent;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.WaitingConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -33,6 +41,8 @@ class RequiredActionAuthenticatorIT {
   private static final String ADMIN_USER = "admin";
   private static final String ADMIN_PASS = "admin";
   private static final String AUTHENTICATOR_CONFIG_ID = "9b46ecb5-2b16-40f0-beae-4fc4ba905292";
+  private static final String LOG_AUTHENTICATOR_CONFIG_MISSING_ERROR = "AuthenticatorConfig is missing on RequiredActionAuthenticator";
+  private static final String LOG_AUTHENTICATOR_CONFIG_REFERENCES_NON_EXISTENT_REQUIRED_ACTION = "AuthenticatorConfig references an unknown RequiredAction, please double check if it really exists: 'NON_EXISTENT_REQUIRED_ACTION'";
 
   @Container
   private static final KeycloakContainer keycloak =
@@ -47,7 +57,7 @@ class RequiredActionAuthenticatorIT {
     return Stream.of(
         Arguments.of("dieterbohlen", "dietersPassword", "TERMS_AND_CONDITIONS"),
         Arguments.of("mannimammut", "mannimammutsPassword", "UPDATE_PASSWORD"),
-        Arguments.of("peterpommes", "peterpommesPassword", "VERIFY_PROFILE")
+        Arguments.of("peterpommes", "peterpommesPassword", "UPDATE_PROFILE")
     );
   }
 
@@ -72,23 +82,15 @@ class RequiredActionAuthenticatorIT {
   }
 
   void executeBrowserFlow(String userName, String password, String requiredAction) {
+
     try (Playwright playwright = Playwright.create()) {
       BrowserType chromium = playwright.chromium();
       // comment me in if you want to run in headless mode !
       //Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
       Browser browser = chromium.launch();
       Page page = browser.newPage();
-      page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
 
-      page.getByText("Signing in").click();
-      page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
-
-      // Login Page
-      page.getByLabel("Username or email").click();
-      page.getByLabel("Username or email").fill(userName);
-
-      page.getByLabel("Password").first().fill(password);
-      page.getByLabel("Password").first().press("Enter");
+      loginUser(browser, page, userName, password);
 
       // split here, for the specific required action
       switch (requiredAction) {
@@ -100,8 +102,9 @@ class RequiredActionAuthenticatorIT {
           page.getByLabel("Confirm Password").fill("Test123!");
           page.getByLabel("Confirm Password").press("Enter");
           break;
-        case "VERIFY_PROFILE":
+        case "UPDATE_PROFILE":
           assertThat(keycloak.getKeycloakAdminClient().realm(REALM_NAME).users().searchByUsername(userName, true).get(0).getRequiredActions()).containsExactly(requiredAction);
+          page.getByText("Submit").click();
           break;
         default:
           Assertions.fail();
@@ -109,14 +112,14 @@ class RequiredActionAuthenticatorIT {
 
       page.waitForURL(String.format("%s/realms/required-action/account/#/security/signingin", keycloak.getAuthServerUrl()));
 
-      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Signing in"))).isVisible();
+      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Signing in")).first()).isVisible();
 
       browser.close();
     }
   }
 
   @Test
-  void testThatFlowIsNotSuccessFulWhenAuthenticatorConfigIsEmpty() {
+  void testThatFlowIsNotSuccessFulWhenAuthenticatorConfigIsEmpty() throws TimeoutException {
     // Setting the AuthenticatorConfig to empty
     var authenticatorConfig = new AuthenticatorConfigRepresentation();
     authenticatorConfig.setId(AUTHENTICATOR_CONFIG_ID);
@@ -130,24 +133,73 @@ class RequiredActionAuthenticatorIT {
 
     try (Playwright playwright = Playwright.create()) {
       BrowserType chromium = playwright.chromium();
-      // comment me in if you want to run in headless mode !
-      Browser browser = chromium.launch(new BrowserType.LaunchOptions().setHeadless(false));
-//      Browser browser = chromium.launch();
+      Browser browser = chromium.launch();
       Page page = browser.newPage();
-      page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
 
-      page.getByText("Signing in").click();
-      page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
+      loginUser(browser, page, "dieterbohlen", "dietersPassword");
 
-      // Login Page
-      page.getByLabel("Username or email").click();
-      page.getByLabel("Username or email").fill("dieterbohlen");
-
-      page.getByLabel("Password").first().fill("dietersPassword");
-      page.getByLabel("Password").first().press("Enter");
-
-      // TODO Check on Error Page here and check on Logs of KeycloakContainer
-      fail();
+      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("We are sorry"))).isVisible();
+      assertThat(page.getByText(LOG_AUTHENTICATOR_CONFIG_MISSING_ERROR)).isVisible();
     }
+
+    final List<String> logs = Arrays.stream(keycloak.getLogs().split("\n")).filter(i -> i.contains(LOG_AUTHENTICATOR_CONFIG_MISSING_ERROR)).toList();
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).contains(
+      "ERROR",
+      "[de.conciso.keycloak.authentication.required_action.RequiredActionAuthenticator]",
+      "AuthenticatorConfig is missing on RequiredActionAuthenticator"
+    );
+  }
+
+  @Test
+  void testThatErrorIsLoggedWhenAuthenticatorConfigReferencesNonExistentRequiredAction() {
+    final String NON_EXISTENT_REQUIRED_ACTION = "NON_EXISTENT_REQUIRED_ACTION";
+    // Setting the AuthenticatorConfig to empty
+    var authenticatorConfig = new AuthenticatorConfigRepresentation();
+    authenticatorConfig.setId(AUTHENTICATOR_CONFIG_ID);
+    authenticatorConfig.setAlias("RequiredAction");
+    var configMap = new HashMap<String, String>();
+    configMap.put("REQUIRED_ACTION", NON_EXISTENT_REQUIRED_ACTION);
+    authenticatorConfig.setConfig(configMap);
+
+    var keycloakAdminClient = keycloak.getKeycloakAdminClient().realm(REALM_NAME);
+    keycloakAdminClient.flows().updateAuthenticatorConfig(AUTHENTICATOR_CONFIG_ID, authenticatorConfig);
+
+    try (Playwright playwright = Playwright.create()) {
+      BrowserType chromium = playwright.chromium();
+      Browser browser = chromium.launch();
+      Page page = browser.newPage();
+
+      loginUser(browser, page, "dieterbohlen", "dietersPassword");
+
+      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("We are sorry"))).isVisible();
+      assertThat(page.getByText(LOG_AUTHENTICATOR_CONFIG_REFERENCES_NON_EXISTENT_REQUIRED_ACTION)).isVisible();
+    }
+
+    final List<String> logs = Arrays.stream(keycloak.getLogs().split("\n")).filter(i -> i.contains(LOG_AUTHENTICATOR_CONFIG_REFERENCES_NON_EXISTENT_REQUIRED_ACTION)).toList();
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).contains(
+      "ERROR",
+      "[de.conciso.keycloak.authentication.required_action.RequiredActionAuthenticator]",
+      String.format("AuthenticatorConfig references an unknown RequiredAction, please double check if it really exists: '%s'", NON_EXISTENT_REQUIRED_ACTION)
+    );
+
+  }
+
+  private void loginUser(Browser browser, Page page, String username, String password) {
+    page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
+
+    page.getByText("Signing in").click();
+    page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
+
+    // Login Page
+    page.getByLabel("Username or email").click();
+    page.getByLabel("Username or email").fill(username);
+
+    page.getByLabel("Password").first().fill(password);
+    page.getByLabel("Password").first().press("Enter");
   }
 }
+
+
+
