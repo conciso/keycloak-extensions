@@ -11,6 +11,7 @@
   <name>keycloak-extensions</name>
 
   <modules>
+    <module>authenticator-required-action</module>
     <module>keycloak-extension-rest</module>
     <module>user-management</module>
   </modules>
@@ -53,6 +54,7 @@
     <version.restassured>5.5.0</version.restassured>
     <version.junit>5.11.3</version.junit>
     <version.log4j>2.24.1</version.log4j>
+    <version.playwright>1.47.0</version.playwright>
   </properties>
 
   <dependencyManagement>
@@ -100,7 +102,13 @@
         <version>${version.keycloak}</version>
         <scope>provided</scope>
       </dependency>
-
+      <!-- UI Testing      -->
+      <dependency>
+        <groupId>com.microsoft.playwright</groupId>
+        <artifactId>playwright</artifactId>
+        <version>${version.playwright}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
