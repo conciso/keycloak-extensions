@@ -110,9 +110,9 @@ class RequiredActionAuthenticatorIT {
           Assertions.fail();
       }
 
-      page.waitForURL(String.format("%s/realms/required-action/account/#/security/signingin", keycloak.getAuthServerUrl()));
+      page.waitForURL(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
 
-      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Signing in")).first()).isVisible();
+      assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Personal info")).first()).isVisible();
 
       browser.close();
     }
@@ -189,7 +189,6 @@ class RequiredActionAuthenticatorIT {
   private void loginUser(Browser browser, Page page, String username, String password) {
     page.navigate(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
 
-    page.getByText("Signing in").click();
     page.waitForURL("**/realms/required-action/protocol/openid-connect/auth**");
 
     // Login Page

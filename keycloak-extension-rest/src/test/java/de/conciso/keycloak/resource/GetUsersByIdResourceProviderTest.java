@@ -1,32 +1,27 @@
 package de.conciso.keycloak.resource;
 
 import de.conciso.keycloak.resource.admin.GetUsersByIdResource;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.common.Profile;
-import org.keycloak.models.KeycloakContext;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserProvider;
+import org.keycloak.models.*;
 import org.keycloak.models.light.LightweightUserAdapter;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.services.ForbiddenException;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
 import org.keycloak.services.resources.admin.permissions.UserPermissionEvaluator;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -144,8 +139,8 @@ class GetUsersByIdResourceProviderTest {
         var userRepresentations = (List<UserRepresentation>) response.getEntity();
 
         assertThat(userRepresentations)
-            .extracting(UserRepresentation::getEmail)
-            .containsExactly("test@gmail.com");
+          .extracting(UserRepresentation::getEmail)
+          .containsExactly("test@gmail.com");
       }
     }
   }
@@ -185,8 +180,8 @@ class GetUsersByIdResourceProviderTest {
         void thenReturns404() {
           assertThat(response.getStatus()).isEqualTo(404);
           assertThat((String) response.getEntity())
-              .contains(NOT_KNOWN_ID.toString())
-              .contains("could not be Found");
+            .contains(NOT_KNOWN_ID.toString())
+            .contains("could not be Found");
 
         }
       }
@@ -217,8 +212,8 @@ class GetUsersByIdResourceProviderTest {
         void thenReturns404() {
           assertThat(response.getStatus()).isEqualTo(404);
           assertThat((String) response.getEntity())
-              .contains(NOT_KNOWN_ID.toString())
-              .contains("could not be Found");
+            .contains(NOT_KNOWN_ID.toString())
+            .contains("could not be Found");
 
         }
       }
@@ -242,8 +237,8 @@ class GetUsersByIdResourceProviderTest {
       @Test
       void thenReturnsForbidden() {
         assertThatThrownBy(() ->
-            cut.getAllUsersByListOfIds(listWithOneID, true))
-            .isInstanceOf(ForbiddenException.class);
+          cut.getAllUsersByListOfIds(listWithOneID, true))
+          .isInstanceOf(ForbiddenException.class);
       }
     }
   }
