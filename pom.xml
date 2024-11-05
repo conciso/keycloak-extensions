@@ -45,7 +45,7 @@
     <maven.compiler.release>17</maven.compiler.release>
 
     <version.keycloak>25.0.6</version.keycloak>
-    <version.maven.plugins>3.5.1</version.maven.plugins>
+    <version.maven.plugins>3.5.2</version.maven.plugins>
 
     <version.mockito>5.14.2</version.mockito>
     <version.assertj>3.26.3</version.assertj>
