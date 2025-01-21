@@ -48,7 +48,7 @@
     <version.maven.plugins>3.5.2</version.maven.plugins>
 
     <version.mockito>5.14.2</version.mockito>
-    <version.assertj>3.26.3</version.assertj>
+    <version.assertj>3.27.3</version.assertj>
     <version.testcontainers>1.20.4</version.testcontainers>
     <version.testcontainers.keycloak>3.5.1</version.testcontainers.keycloak>
     <version.restassured>5.5.0</version.restassured>
