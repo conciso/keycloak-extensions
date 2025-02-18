@@ -37,7 +37,6 @@ jobs:
       - name: Release Selected Module
         run: |
           mvn -B clean release:prepare release:perform \
-            -s maven-github-settings.xml --file pom.xml \
             -DpushChanges=false -DlocalCheckout=true \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
