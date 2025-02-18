@@ -34,10 +34,21 @@ jobs:
           java-version: 17
           cache: 'maven'
 
+      - name: Install Parent POM (Falls Lokal benötigt)
+        run: mvn install -N || echo "Parent-POM bereits vorhanden oder wird aus Repo geladen."
+
+      - name: Optionaler Parent-POM-Build und Deployment
+        run: |
+          if [ -f "parent/pom.xml" ]; then
+            mvn clean install -pl parent -am
+            mvn deploy -pl parent -am -DskipTests
+          fi
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Release Selected Module
         run: |
           mvn -B clean release:prepare release:perform \
-            -s maven-github-settings.xml --file pom.xml \
             -DpushChanges=false -DlocalCheckout=true \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
