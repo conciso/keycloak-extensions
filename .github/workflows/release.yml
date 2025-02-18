@@ -41,7 +41,6 @@ jobs:
         run: |
           if [ -f "parent/pom.xml" ]; then
             mvn clean install -pl parent -am
-#            mvn deploy -pl parent -am -DskipTests
           fi
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
