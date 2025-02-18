@@ -43,8 +43,8 @@ jobs:
             mvn clean install -pl parent -am
 #            mvn deploy -pl parent -am -DskipTests
           fi
-#        env:
-#          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Release Selected Module
         run: |
