@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: "Maven Submodule to Release (e.g., module-a, module-b)"
+        description: "Maven (Sub)module to Release (e.g., keycloak-extensions, authenticator-required-action, keycloak-extension-rest, user-management)"
         required: true
+        default: parent
       releaseVersion:
         description: "Version to use for release."
         required: true
@@ -45,13 +46,29 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+
+      #  Entscheidet, ob das `parent`-Modul oder ein Submodul gebaut wird
+      - name: Determine Build Scope
+        id: determine_scope
+        run: |
+          if [[ "${{ github.event.inputs.module }}" == "parent" ]]; then
+            echo "BUILD_MODULE=parent" >> $GITHUB_ENV
+            echo "BUILD_ARGS=-pl parent -am" >> $GITHUB_ENV
+          else
+            echo "BUILD_MODULE=${{ github.event.inputs.module }}" >> $GITHUB_ENV
+            echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }} -am" >> $GITHUB_ENV
+          fi
+
+      - name: Build and Package Selected Module
+        run: mvn clean package $BUILD_ARGS
+
       - name: Release Selected Module
         run: |
           mvn -B clean release:prepare release:perform \
             -DpushChanges=false -DlocalCheckout=true \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-            -pl ${{ github.event.inputs.module }} -am
+            $BUILD_ARGS
 
           git tag v${{ github.event.inputs.releaseVersion }}-${{ github.event.inputs.module }}
           git push origin v${{ github.event.inputs.releaseVersion }}-${{ github.event.inputs.module }}
