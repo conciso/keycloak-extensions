@@ -18,23 +18,23 @@
 
 
   <scm>
-    <connection>scm:git:ssh://git@github.com:conciso/keycloak-extensions.git</connection>
-    <developerConnection>scm:git:https://github.com/conciso/keycloak-extensions.git
+    <connection>scm:git:ssh://git@github.com:befsch/keycloak-extensions.git</connection>
+    <developerConnection>scm:git:https://github.com/befsch/keycloak-extensions.git
     </developerConnection>
-    <url>https://github.com/keycloak/keycloak-extensions.git</url>
+    <url>https://github.com/befsch/keycloak-extensions.git</url>
     <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
-    <url>https://github.com/conciso/keycloak-extensions/issues</url>
+    <url>https://github.com/befsch/keycloak-extensions/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
   <distributionManagement>
     <repository>
       <id>github</id>
-      <name>GitHub conciso Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/conciso/keycloak-extensions</url>
+      <name>GitHub befsch Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/befsch/keycloak-extensions</url>
     </repository>
   </distributionManagement>
 
