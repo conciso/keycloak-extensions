@@ -198,6 +198,10 @@ class RequiredActionAuthenticatorIT {
     page.getByLabel("Password").first().fill(password);
     page.getByLabel("Password").first().press("Enter");
   }
+
+  public void methodWithOutUse(){
+
+  }
 }
 
 

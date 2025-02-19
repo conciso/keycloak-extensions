@@ -52,26 +52,3 @@ jobs:
       - name: Build & Test ${{ matrix.module }}
         run: mvn -B clean verify -pl ${{ matrix.module }} -am
 
-  deploy:
-    needs: build_and_test
-    strategy:
-      matrix:
-        module: ${{ fromJson(needs.detect-changes.outputs.modules) }}
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Deploy ${{ matrix.module }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn deploy -pl ${{ matrix.module }} -am
-
-
