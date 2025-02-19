@@ -9,6 +9,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>user-management</artifactId>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>Keycloak: User Management Extensions</name>
 
