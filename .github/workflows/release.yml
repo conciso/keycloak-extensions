@@ -52,7 +52,7 @@ jobs:
         id: determine_scope
         run: |
           if [[ "${{ github.event.inputs.module }}" == "parent" ]]; then
-            echo "BUILD_MODULE=." >> $GITHUB_ENV
+            echo "BUILD_MODULE=parent" >> $GITHUB_ENV
             echo "BUILD_ARGS=" >> $GITHUB_ENV  # Baut das gesamte Projekt
           else
             echo "BUILD_MODULE=${{ github.event.inputs.module }}" >> $GITHUB_ENV
