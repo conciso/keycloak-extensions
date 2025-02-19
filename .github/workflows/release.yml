@@ -41,9 +41,7 @@ jobs:
           cache: 'maven'
 
       - name: Ensure Submodules Keep Own Version
-        run: |
-          mvn versions:use-parent-versions -DallowSnapshots=true
-
+        run: mvn versions:update-parent -DallowSnapshots=true
 
       #  Entscheidet, ob das `parent`-Modul oder ein Submodul gebaut wird
       - name: Determine Build Scope
