@@ -58,8 +58,8 @@ jobs:
             echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }} -am" >> $GITHUB_ENV
           fi
 
-      - name: Build and Package Selected Module
-        run: mvn clean package $BUILD_ARGS
+#      - name: Build and Package Selected Module
+#        run: mvn clean package $BUILD_ARGS
 
       - name: Release Selected Module
         run: |
