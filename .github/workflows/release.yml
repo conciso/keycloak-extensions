@@ -4,7 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: "Maven (Sub)module to Release (e.g., keycloak-extensions, authenticator-required-action, keycloak-extension-rest, user-management)"
+        description: "Maven (Sub)module to Release (e.g.,
+                  keycloak-extensions,
+                  authenticator-required-action,
+                  keycloak-extension-rest,
+                  user-management).
+                  Parent is the default"
         required: false
         default: parent
       releaseVersion:
@@ -35,10 +40,10 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Install Parent POM (Falls Lokal benötigt)
-        run: mvn install -N || echo "Parent-POM bereits vorhanden oder wird aus Repo geladen."
+      - name: Install Parent POM (If necessary locally)
+        run: mvn install -N || echo "Parent-POM already exists or is getting downloaded from repo."
 
-      - name: Optionaler Parent-POM-Build und Deployment
+      - name: Optional parent POM build und deployment
         run: |
           if [ -f "parent/pom.xml" ]; then
             mvn clean install -pl parent -am
@@ -68,6 +73,7 @@ jobs:
             -DpushChanges=false -DlocalCheckout=true \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+            -DautoVersionSubmodules=false \
             $BUILD_ARGS
 
           git tag v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}
@@ -78,10 +84,10 @@ jobs:
 #      - name: Release to GitHub Releases
 #        uses: softprops/action-gh-release@v2
 #        with:
-#          files: "target/${{ github.event.inputs.module }}.jar"
+#          files: "target/${{ env.BUILD_MODULE }}.jar"
 #          body_path: "RELEASELOG.md"
 #          fail_on_unmatched_files: true
-#          tag_name: v${{ github.event.inputs.releaseVersion }}-${{ github.event.inputs.module }}
+#          tag_name: v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}
 #          generate_release_notes: true
 #        env:
 #          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
