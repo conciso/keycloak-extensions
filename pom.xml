@@ -216,6 +216,7 @@
           <version>3.0.1</version>
           <configuration>
             <autoVersionSubmodules>false</autoVersionSubmodules>
+            <updateDependencies>false</updateDependencies>  <!-- Verhindert, dass Parent die Submodule ändert -->
           </configuration>
         </plugin>
       </plugins>
