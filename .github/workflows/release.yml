@@ -40,16 +40,9 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Install Parent POM (If necessary locally)
-        run: mvn install -N || echo "Parent-POM already exists or is getting downloaded from repo."
-
-      - name: Optional parent POM build und deployment
+      - name: Ensure Submodules Keep Own Version
         run: |
-          if [ -f "parent/pom.xml" ]; then
-            mvn clean install -pl parent -am
-          fi
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          mvn versions:use-parent-versions -DallowSnapshots=true
 
 
       #  Entscheidet, ob das `parent`-Modul oder ein Submodul gebaut wird
