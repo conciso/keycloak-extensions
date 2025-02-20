@@ -51,25 +51,44 @@ jobs:
         id: determine_scope
         run: |
           if [[ "${{ github.event.inputs.module }}" == "parent" ]]; then
-            echo "BUILD_MODULE=parent" >> $GITHUB_ENV
-            echo "BUILD_ARGS=-pl parent -N" >> $GITHUB_ENV
+            echo "BUILD_MODULE=ROOT" >> $GITHUB_ENV
+            echo "BUILD_ARGS=" >> $GITHUB_ENV
           else
             echo "BUILD_MODULE=${{ github.event.inputs.module }}" >> $GITHUB_ENV
             echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }}" >> $GITHUB_ENV
           fi
 
+      # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
       - name: Build and Package Selected Module
-        run: mvn clean package $BUILD_ARGS
+        run: |
+          if [[ "$BUILD_MODULE" == "ROOT" ]]; then
+            mvn clean package
+          else
+            mvn clean package $BUILD_ARGS
+          fi
+
 
       - name: Release Selected Module
         run: |
-          mvn -B clean release:prepare release:perform \
-            -DpushChanges=false -DlocalCheckout=true \
-            -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
-            -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-            -DautoVersionSubmodules=false \
-            -DupdateDependencies=false \
-            $BUILD_ARGS
+          if [[ "$BUILD_MODULE" == "ROOT" ]]; then
+            mvn -B release:prepare release:perform \
+              -DpushChanges=true \
+              -DlocalCheckout=true \
+              -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
+              -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false
+          else
+            mvn -B release:prepare release:perform \
+              -DpushChanges=true \
+              -DlocalCheckout=true \
+              -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
+              -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false \
+              $BUILD_ARGS
+          fi
+
 
           # Setze Git-Tag nur für die relevante Komponente
           TAG_NAME="v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}"
