@@ -61,7 +61,7 @@ jobs:
       # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
       - name: Build and Package Selected Module
         run: |
-          if [[ "$BUILD_MODULE" == "ROOT" ]]; then
+          if [[ "$BUILD_MODULE" == "parent" ]]; then
             mvn clean package
           else
             mvn clean package $BUILD_ARGS
