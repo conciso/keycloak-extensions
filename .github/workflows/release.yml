@@ -43,8 +43,8 @@ jobs:
       - name: Install Parent POM (If necessary locally)
         run: mvn install -N || echo "Parent-POM already exists or is getting downloaded from repo."
 
-      - name: Ensure Submodules Keep Own Version
-        run: mvn versions:update-parent -DallowSnapshots=true
+#      - name: Ensure Submodules Keep Own Version
+#        run: mvn versions:update-parent -DallowSnapshots=true
 
       #  Entscheidet, ob das `parent`-Modul oder ein Submodul gebaut wird
       - name: Determine Build Scope
