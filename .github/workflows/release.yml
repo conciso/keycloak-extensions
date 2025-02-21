@@ -70,7 +70,7 @@ jobs:
 
       - name: Release Selected Module
         run: |
-          if [[ "$BUILD_MODULE" == "parent ]]; then
+          if [[ "$BUILD_MODULE" == "parent" ]]; then
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
