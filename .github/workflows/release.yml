@@ -73,7 +73,6 @@ jobs:
           if [[ "$BUILD_MODULE" == "ROOT" ]]; then
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
-              -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
               -DautoVersionSubmodules=false \
@@ -81,7 +80,6 @@ jobs:
           else
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
-              -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
               -DautoVersionSubmodules=false \
