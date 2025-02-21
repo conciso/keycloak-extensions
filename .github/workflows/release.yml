@@ -55,7 +55,7 @@ jobs:
             echo "BUILD_ARGS=" >> $GITHUB_ENV
           else
             echo "BUILD_MODULE=${{ github.event.inputs.module }}" >> $GITHUB_ENV
-            echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }}" >> $GITHUB_ENV
+            echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }} -am" >> $GITHUB_ENV
           fi
 
       # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
