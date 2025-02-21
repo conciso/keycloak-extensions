@@ -58,27 +58,27 @@ jobs:
             echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }} -am" >> $GITHUB_ENV
           fi
 
-#      # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
-#      - name: Build and Package Selected Module
-#        run: |
-#          if [[ "$BUILD_MODULE" == "parent" ]]; then
-#            mvn clean package
-#          else
-#            mvn clean package $BUILD_ARGS
-#          fi
+      # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
+      - name: Build and Package Selected Module
+        run: |
+          if [[ "$BUILD_MODULE" == "parent" ]]; then
+            mvn clean package
+          else
+            mvn clean package $BUILD_ARGS
+          fi
 
 
       - name: Release Selected Module
         run: |
           if [[ "$BUILD_MODULE" == "parent" ]]; then
-            echo "releasing parent"
+            echo "releasing parent with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
               -DautoVersionSubmodules=true \
           else
-            echo "releasing submodule ${{ env.BUILD_MODULE }}"
+            echo "releasing submodule ${{ env.BUILD_MODULE }} with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
