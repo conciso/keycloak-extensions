@@ -75,15 +75,14 @@ jobs:
               -DpushChanges=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-              -DautoVersionSubmodules=false \
-              -DupdateDependencies=false
+              -DautoVersionSubmodules=true \
           else
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-              -DautoVersionSubmodules=false \
-              -DupdateDependencies=false \
+              -DautoVersionSubmodules=false \ # Prevent modifying submodules
+              -DupdateWorkingCopyVersions=false \ # Keep parent version same
               $BUILD_ARGS
           fi
 
