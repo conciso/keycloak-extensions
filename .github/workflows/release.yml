@@ -70,28 +70,30 @@ jobs:
 
       - name: Release Selected Module
         run: |
-          if [[ "$BUILD_MODULE" == "parent" ]]; then
+          if [[ "$BUILD_MODULE" == "ROOT" ]]; then
             echo "releasing parent with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
+              -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-              -DautoVersionSubmodules=true \
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false
           else
             echo "releasing submodule ${{ env.BUILD_MODULE }} with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
               -DpushChanges=true \
+              -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
-              -DautoVersionSubmodules=false \ # Prevent modifying submodules
-              -DupdateWorkingCopyVersions=false \ # Keep parent version same
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false \
               $BUILD_ARGS
           fi
 
-
-          # Setze Git-Tag nur für die relevante Komponente
+          # ➤ GIT-Tag setzen für Parent oder Submodul
           TAG_NAME="v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}"
-          if [[ "${{ env.BUILD_MODULE }}" == "parent" ]]; then
+          if [[ "${{ env.BUILD_MODULE }}" == "ROOT" ]]; then
             TAG_NAME="v${{ github.event.inputs.releaseVersion }}"
           fi
 
