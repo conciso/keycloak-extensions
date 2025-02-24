@@ -5,7 +5,7 @@
 
   <groupId>de.conciso.keycloak-extensions</groupId>
   <artifactId>parent</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
   <name>keycloak-extensions</name>
 

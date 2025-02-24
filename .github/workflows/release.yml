@@ -73,7 +73,7 @@ jobs:
           if [[ "$BUILD_MODULE" == "ROOT" ]]; then
             echo "releasing parent with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
-              -DpushChanges=true \
+              -DpushChanges=false \
               -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
@@ -82,7 +82,7 @@ jobs:
           else
             echo "releasing submodule ${{ env.BUILD_MODULE }} with version ${{ github.event.inputs.releaseVersion }}"
             mvn -B release:prepare release:perform \
-              -DpushChanges=true \
+              -DpushChanges=false \
               -DlocalCheckout=true \
               -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
               -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
@@ -118,7 +118,7 @@ jobs:
         id: create-pr
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore(release): Bump version of ${{ env.BUILD_MODULE }} to next snapshot"
+          commit-message: "chore(release): Bump version of ${{ env.BUILD_MODULE }} to ${{ github.event.inputs.releaseVersion }}"
           delete-branch: "true"
           branch: "release/${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}"
           base: "main"
