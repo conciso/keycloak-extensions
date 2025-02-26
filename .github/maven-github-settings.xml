@@ -24,8 +24,8 @@
 
         <repository>
           <id>github</id>
-          <name>GitHub befsch Apache Maven Packages</name>
-          <url>https://maven.pkg.github.com/befsch/keycloak-extensions</url>
+          <name>GitHub conciso Apache Maven Packages</name>
+          <url>https://maven.pkg.github.com/conciso/keycloak-extensions</url>
         </repository>
       </repositories>
     </profile>
@@ -34,7 +34,7 @@
   <servers>
     <server>
       <id>github</id>
-      <username>befsch</username>
+      <username>sventorben</username>
       <password>${env.GITHUB_TOKEN}</password>
     </server>
   </servers>

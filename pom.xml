@@ -217,7 +217,6 @@
             <autoVersionSubmodules>false</autoVersionSubmodules>
             <updateDependencies>false</updateDependencies>  <!-- Verhindert, dass Parent die Submodule ändert -->
             <commitByProject>true</commitByProject>  <!-- Kein globales Commit für Reactor -->
-
           </configuration>
         </plugin>
       </plugins>
