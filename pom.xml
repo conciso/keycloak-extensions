@@ -44,7 +44,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.release>17</maven.compiler.release>
 
-    <version.keycloak>26.0.7</version.keycloak>
+    <version.keycloak>26.1.4</version.keycloak>
     <version.maven.plugins>3.5.2</version.maven.plugins>
 
     <version.mockito>5.14.2</version.mockito>
