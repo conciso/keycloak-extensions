@@ -6,7 +6,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.provider.ServerInfoAwareProviderFactory;
 import org.keycloak.services.resources.admin.AdminEventBuilder;
 import org.keycloak.services.resources.admin.ext.AdminRealmResourceProvider;
-import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
+import org.keycloak.services.resources.admin.fgap.AdminPermissionEvaluator;
 
 public class GetUsersByIdResourceProvider implements AdminRealmResourceProvider,
     ServerInfoAwareProviderFactory {
