@@ -2,8 +2,7 @@
 
 This Repository contains free to use Extensions for the OpenSource Project [Keycloak](https://github.com/keycloak/keycloak)
 
-This repo contains the following extensions:
-
+This repo contains the following extensions:g
 ## Authenticator-Required-Action
 
 You can add this Authenticator to your flow, so a User gets the defined Required-Action set on signing in.

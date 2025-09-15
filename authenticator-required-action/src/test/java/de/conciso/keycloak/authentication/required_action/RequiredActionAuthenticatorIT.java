@@ -6,7 +6,6 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,23 +14,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.keycloak.representations.idm.AuthenticatorConfigRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.LoggingEvent;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.output.WaitingConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 @Testcontainers
 class RequiredActionAuthenticatorIT {
@@ -46,18 +40,18 @@ class RequiredActionAuthenticatorIT {
 
   @Container
   private static final KeycloakContainer keycloak =
-      new KeycloakContainer("quay.io/keycloak/keycloak:" + KEYCLOAK_VERSION)
-          .withEnv("KEYCLOAK_ADMIN", ADMIN_USER)
-          .withEnv("KEYCLOAK_ADMIN_PASSWORD", ADMIN_PASS)
-          .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
-          .withProviderClassesFrom("target/classes")
-          .withRealmImportFile("required-action-realm.json");
+    new KeycloakContainer("quay.io/keycloak/keycloak:" + KEYCLOAK_VERSION)
+      .withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", ADMIN_USER)
+      .withEnv("KC_BOOTSTRAP_ADMIN_PASSWORD", ADMIN_PASS)
+      .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
+      .withProviderClassesFrom("target/classes")
+      .withRealmImportFile("required-action-realm.json");
 
   private static Stream<Arguments> provideUserLogins() {
     return Stream.of(
-        Arguments.of("dieterbohlen", "dietersPassword", "TERMS_AND_CONDITIONS"),
-        Arguments.of("mannimammut", "mannimammutsPassword", "UPDATE_PASSWORD"),
-        Arguments.of("peterpommes", "peterpommesPassword", "UPDATE_PROFILE")
+      Arguments.of("dieterbohlen", "dietersPassword", "TERMS_AND_CONDITIONS"),
+      Arguments.of("mannimammut", "mannimammutsPassword", "UPDATE_PASSWORD"),
+      Arguments.of("peterpommes", "peterpommesPassword", "UPDATE_PROFILE")
     );
   }
 
@@ -76,7 +70,7 @@ class RequiredActionAuthenticatorIT {
     keycloakAdminClient.flows().updateAuthenticatorConfig(AUTHENTICATOR_CONFIG_ID, authenticatorConfig);
 
     assertThat(keycloakAdminClient.users().searchByUsername(userName, true).get(0).getRequiredActions())
-        .isEmpty();
+      .isEmpty();
 
     executeBrowserFlow(userName, password, requiredAction);
   }
@@ -95,7 +89,7 @@ class RequiredActionAuthenticatorIT {
       // split here, for the specific required action
       switch (requiredAction) {
         case "TERMS_AND_CONDITIONS":
-          page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Accept")).click();
+          page.locator("#kc-accept").click();
           break;
         case "UPDATE_PASSWORD":
           page.getByLabel("New Password").fill("Test123!");
@@ -109,9 +103,7 @@ class RequiredActionAuthenticatorIT {
         default:
           Assertions.fail();
       }
-
-      page.waitForURL(String.format("%s/realms/required-action/account/", keycloak.getAuthServerUrl()));
-
+      page.waitForURL(url -> url.contains("/realms/required-action/account"));
       assertThat(page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName("Personal info")).first()).isVisible();
 
       browser.close();
