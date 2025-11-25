@@ -32,12 +32,12 @@ public final class UserLastLoginEventListener implements EventListenerProvider {
 
         final String time = OffsetDateTime.now(clock).format(DateTimeFormatter.ISO_DATE_TIME);
         switch (event.getType()) {
-            case LOGIN -> handleUserLogin(event, realm, time);
+            case LOGIN, IDENTITY_PROVIDER_LOGIN -> handleUserLogin(event, realm, time);
             case CLIENT_LOGIN -> handleClientLoginWithServiceAccount(event, realm, time);
         }
     }
 
-    private void handleClientLoginWithServiceAccount(Event event, RealmModel realm, String time) {
+  private void handleClientLoginWithServiceAccount(Event event, RealmModel realm, String time) {
         final String clientId = event.getClientId();
         final ClientModel client = keycloakSession.clients().getClientByClientId(realm, clientId);
         if (client.isServiceAccountsEnabled()) {
