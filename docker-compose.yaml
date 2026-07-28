@@ -1,6 +1,6 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.3.4
+    image: quay.io/keycloak/keycloak:26.7.0
     container_name: keycloak
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]
     environment:
