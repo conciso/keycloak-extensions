@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Maven (Sub)module to Release (e.g.,
+                  keycloak-extensions,
+                  authenticator-required-action,
+                  keycloak-extension-rest,
+                  user-management).
+                  Parent is the default"
+        required: false
+        default: "parent"
+      releaseVersion:
+        description: "Version to use for release."
+        required: true
+        default: "X.Y.Z"
+      developmentVersion:
+        description: "Version to use for next development cycle."
+        required: true
+        default: "X.Y.Z-SNAPSHOT"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git User
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'maven'
+
+      - name: Install Parent POM (If necessary locally)
+        run: mvn install -N || echo "Parent-POM already exists or is getting downloaded from repo."
+
+
+      - name: Determine Build Scope
+        id: determine_scope
+        run: |
+          if [[ "${{ github.event.inputs.module }}" == "parent" ]]; then
+            echo "BUILD_MODULE=parent" >> $GITHUB_ENV
+            echo "BUILD_ARGS=" >> $GITHUB_ENV
+          else
+            echo "BUILD_MODULE=${{ github.event.inputs.module }}" >> $GITHUB_ENV
+            echo "BUILD_ARGS=-pl ${{ github.event.inputs.module }} -am" >> $GITHUB_ENV
+          fi
+
+      # ✅ Nur das gewählte Modul wird gebaut (Gesamtprojekt oder einzelnes Submodul)
+      - name: Build and Package Selected Module
+        run: |
+          if [[ "$BUILD_MODULE" == "parent" ]]; then
+            mvn clean package
+          else
+            mvn clean package $BUILD_ARGS
+          fi
+
+
+      - name: Release Selected Module
+        run: |
+          if [[ "$BUILD_MODULE" == "ROOT" ]]; then
+            echo "releasing parent with version ${{ github.event.inputs.releaseVersion }}"
+            mvn -B release:prepare release:perform \
+              -DpushChanges=false \
+              -DlocalCheckout=true \
+              -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
+              -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false
+          else
+            echo "releasing submodule ${{ env.BUILD_MODULE }} with version ${{ github.event.inputs.releaseVersion }}"
+            mvn -B release:prepare release:perform \
+              -DpushChanges=false \
+              -DlocalCheckout=true \
+              -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
+              -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} \
+              -DautoVersionSubmodules=false \
+              -DupdateDependencies=false \
+              $BUILD_ARGS
+          fi
+
+          # ➤ GIT-Tag setzen für Parent oder Submodul
+          TAG_NAME="v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}"
+          if [[ "${{ env.BUILD_MODULE }}" == "ROOT" ]]; then
+            TAG_NAME="v${{ github.event.inputs.releaseVersion }}"
+          fi
+
+          echo "Creating Git tag: $TAG_NAME"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Release to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "target/${{ env.BUILD_MODULE }}.jar"
+          body_path: "RELEASELOG.md"
+          fail_on_unmatched_files: true
+          tag_name: v${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Create Pull Request for Next Snapshot
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore(release): Bump version of ${{ env.BUILD_MODULE }} to ${{ github.event.inputs.releaseVersion }}"
+          delete-branch: "true"
+          branch: "release/${{ github.event.inputs.releaseVersion }}-${{ env.BUILD_MODULE }}"
+          base: "main"
+          title: "chore(release): Prepare next snapshot version for ${{ env.BUILD_MODULE }}"
+          body: "Automated PR for next snapshot after ${{ env.BUILD_MODULE }} release ${{ github.event.inputs.releaseVersion }}"
+          labels: "release,ignore-for-release"
+          assignees: "befsch"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
