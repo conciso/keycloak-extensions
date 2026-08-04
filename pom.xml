@@ -54,7 +54,7 @@
     <version.restassured>6.0.1</version.restassured>
     <version.junit>5.12.1</version.junit>
     <version.log4j>2.26.1</version.log4j>
-    <version.playwright>1.51.0</version.playwright>
+    <version.playwright>1.61.0</version.playwright>
   </properties>
 
   <dependencyManagement>
